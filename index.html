@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>judi.lol</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(at bottom, #2563eb 0%, rgb(34, 34, 34) 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            position: relative;
+            transition: background 0.5s ease, color 0.5s ease;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #333;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #666;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #888;
+        }
+
+        #intro {
+            width: 100%;
+            max-width: 1200px;
+            padding: 0 1.5rem;
+        }
+
+        .logo {
+            width: 24px;
+            height: 24px;
+            filter: invert(100%);
+        }
+
+        .bottom-right-container {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            z-index: 100;
+            display: flex;
+            align-items: flex-end;
+            gap: 1rem;
+        }
+
+        .theme-picker-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .theme-picker-button {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 120px;
+            height: 48px;
+            padding: 0;
+            overflow: hidden;
+            transition: all 0.3s ease-out;
+            border-width: 2px;
+            border-style: solid;
+            border-color: #2563eb;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            background-color: rgba(30, 41, 59, 0.7);
+        }
+
+        .theme-picker-button .hover-gradient {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to right, var(--from-color), var(--to-color));
+            transition: all 0.3s ease-out;
+            transform: scaleX(0);
+            transform-origin: left;
+        }
+
+        .theme-picker-button:hover .hover-gradient {
+            transform: scaleX(1);
+        }
+
+         .theme-picker-button .button-icon {
+            position: relative;
+            z-index: 10;
+            transition: color 0.3s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .theme-picker-button .button-icon img {
+             width: 24px;
+             height: 24px;
+        }
+
+
+        .theme-dropdown {
+            position: absolute;
+            bottom: calc(100% + 0.5rem);
+            right: 0;
+            background-color: rgba(30, 41, 59, 0.95);
+            border: 2px solid #2563eb;
+            border-radius: 1.5rem;
+            padding: 0.5rem;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+            flex-direction: column;
+            gap: 0.5rem;
+            min-width: 120px;
+            perspective: 1000px;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+        }
+
+        .theme-dropdown.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        @keyframes popUp {
+            0% {
+                opacity: 0;
+                transform: translateY(20px) scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes fadeOutDown {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(20px) scale(0.9);
+            }
+        }
+
+
+        .theme-option {
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            color: #e2e8f0;
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-option:hover {
+            background-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .theme-dropdown.show .theme-option {
+            animation: popUp 0.4s ease-out forwards;
+        }
+
+        .theme-dropdown:not(.show) .theme-option {
+             animation: fadeOutDown 0.3s ease-in forwards;
+        }
+
+
+        .theme-dropdown .theme-option:nth-child(1) { animation-delay: 0.05s; }
+        .theme-dropdown .theme-option:nth-child(2) { animation-delay: 0.10s; }
+        .theme-dropdown .theme-option:nth-child(3) { animation-delay: 0.15s; }
+        .theme-dropdown .theme-option:nth-child(4) { animation-delay: 0.20s; }
+        .theme-dropdown .theme-option:nth-child(5) { animation-delay: 0.25s; }
+        .theme-dropdown .theme-option:nth-child(6) { animation-delay: 0.30s; }
+
+
+        .theme-option[data-color="#ffffff"] {
+             color: #e2e8f0;
+        }
+
+        .color-swatch {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            margin-right: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .theme-button {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem 1.5rem;
+            overflow: hidden;
+            font-weight: 500;
+            transition: all 0.3s ease-out;
+            border-width: 2px;
+            border-style: solid;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-button .hover-gradient {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to right, var(--from-color), var(--to-color));
+            transition: all 0.3s ease-out;
+            transform: scaleX(0);
+            transform-origin: left;
+        }
+
+        .theme-button:hover .hover-gradient {
+            transform: scaleX(1);
+        }
+
+         .theme-button .button-text {
+            position: relative;
+            z-index: 10;
+            transition: color 0.3s ease-out;
+        }
+
+        body.white-theme {
+            background: radial-gradient(at bottom, #ffffff 0%, #e0e0e0 50%, #cccccc 100%);
+            color: #000000;
+        }
+
+        body.white-theme .logo {
+            filter: none;
+        }
+
+        body.white-theme .theme-button {
+             border-color: #000000;
+             color: #000000;
+        }
+
+        body.white-theme .theme-button .hover-gradient {
+             background: linear-gradient(to right, #e2e8f0, #cbd5e1);
+        }
+
+         body.white-theme .theme-button:hover .button-text {
+             color: #000000;
+        }
+
+        body.white-theme .theme-picker-button .button-icon {
+             filter: none;
+         }
+
+         body.white-theme .theme-picker-button {
+             border-color: #000000;
+             background-color: rgba(255, 255, 255, 0.7);
+         }
+
+         body.white-theme .theme-picker-button .hover-gradient {
+             background: linear-gradient(to right, #e2e8f0, #cbd5e1);
+         }
+
+         body.white-theme .theme-dropdown {
+             border-color: #000000;
+         }
+
+        .email-contact-container {
+            display: flex;
+            align-items: center;
+            background-color: rgba(30, 41, 59, 0.7);
+            border: 2px solid #2563eb;
+            border-radius: 1.5rem;
+            padding: 0.5rem 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: border-color 0.3s ease;
+        }
+
+        .email-contact-container .email-text {
+            margin-right: 0.5rem;
+            color: #e2e8f0;
+            font-size: 1rem;
+        }
+
+        .email-contact-container .copy-button {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            overflow: hidden;
+            transition: all 0.3s ease-out;
+            border-width: 2px;
+            border-style: solid;
+            border-color: #2563eb;
+            border-radius: 9999px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            background: none;
+        }
+
+        .email-contact-container .copy-button .hover-gradient {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to right, var(--from-color), var(--to-color));
+            transition: all 0.3s ease-out;
+            transform: scaleX(0);
+            transform-origin: left;
+        }
+
+        .email-contact-container .copy-button:hover .hover-gradient {
+            transform: scaleX(1);
+        }
+
+        .email-contact-container .copy-button .button-icon img {
+             width: 16px;
+             height: 16px;
+             position: relative;
+             z-index: 10;
+             transition: filter 0.3s ease-out;
+             filter: invert(100%);
+        }
+
+        body.white-theme .email-contact-container {
+             border-color: #000000;
+             background-color: rgba(255, 255, 255, 0.7);
+        }
+
+        body.white-theme .email-contact-container .email-text {
+             color: #000000;
+        }
+
+        body.white-theme .email-contact-container .copy-button {
+             border-color: #000000;
+        }
+
+        body.white-theme .email-contact-container .copy-button .hover-gradient {
+             background: linear-gradient(to right, #e2e8f0, #cbd5e1);
+        }
+
+        body.white-theme .email-contact-container .copy-button .button-icon img {
+             filter: none;
+        }
+    </style>
+</head>
+<body>
+
+    <section id="intro" class="py-16 md:py-24 flex items-center">
+        <div class="container mx-auto flex flex-col md:flex-row items-center justify-start">
+            <div class="md:w-1/2 text-center md:text-left mb-8 md:mb-0 md:pr-8">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4 rounded">👋 hi, i'm judi</h1> <p class="text-xl md:text-2xl leading-relaxed rounded"> part-time romanian developer from the sunny city of calarasi.
+                </p>
+                <div class="mt-8 space-x-4  flex justify-center md:justify-start">
+                    <a href="https://github.com/judeeey" target="_blank" class="theme-button group" data-border-color="#2563eb" data-text-color="#e2e8f0" data-from-color="#4f46e5" data-to-color="#6366f1">
+                        <span class="hover-gradient"></span>
+                        <span class="button-text">
+                             <img src="/media/github-mark.svg" alt="GitHub Logo" class="logo" draggable="false">
+                        </span>
+                    </a>
+                    <a href="https://revolut.me/judeeey" target="_blank" class="theme-button group" data-border-color="#2563eb" data-text-color="#e2e8f0" data-from-color="#4f46e5" data-to-color="#6366f1">
+                        <span class="hover-gradient"></span>
+                        <span class="button-text">
+                             <img src="/media/revolut.png" alt="Revolut Logo" class="logo" draggable="false">
+                        </span>
+                    </a>
+                     <a href="https://fakecri.me/judi" target="_blank" class="theme-button group" data-border-color="#2563eb" data-text-color="#e2e8f0" data-from-color="#4f46e5" data-to-color="#6366f1">
+                        <span class="hover-gradient"></span>
+                        <span class="button-text">
+                             <img src="/media/fakecrime.svg" alt="Fakecrime Logo" class="logo" draggable="false">
+                        </span>
+                    </a>
+                </div>
+            </div>
+             <div class="md:w-1/2 flex flex-col items-center md:items-end">
+                </div>
+        </div>
+    </section>
+
+    <div class="bottom-right-container">
+        <div class="email-contact-container">
+            <span class="email-text">me@judi.lol</span>
+            <button class="copy-button group" id="copy-email-button">
+                 <span class="hover-gradient"></span>
+                 <span class="button-icon">
+                     <img src="/media/copy.png" alt="Copy Icon" draggable="false">
+                 </span>
+            </button>
+        </div>
+        <div class="theme-picker-container">
+            <button class="theme-picker-button group">
+                 <span class="hover-gradient"></span>
+                 <span class="button-icon">
+                     <img src="/media/bucket.png" alt="Theme Bucket Icon" class="logo" draggable="false">
+                 </span>
+            </button>
+            <div class="theme-dropdown" id="theme-dropdown">
+                <div class="theme-option" data-color="#ef4444" data-from="#f87171" data-to="#fca5a5"><span class="color-swatch" style="background-color: #ef4444;"></span>Red</div>
+                <div class="theme-option" data-color="#2563eb" data-from="#4f46e5" data-to="#6366f1"><span class="color-swatch" style="background-color: #2563eb;"></span>Blue</div>
+                <div class="theme-option" data-color="#06b6d4" data-from="#22d3ee" data-to="#67e8f9"><span class="color-swatch" style="background-color: #06b6d4;"></span>Cyan</div>
+                <div class="theme-option" data-color="#22c55e" data-from="#4ade80" data-to="#86efac"><span class="color-swatch" style="background-color: #22c55e;"></span>Green</div>
+                <div class="theme-option" data-color="#ec4899" data-from="#f472b6" data-to="#f9a8d4"><span class="color-swatch" style="background-color: #ec4899;"></span>Pink</div>
+                <div class="theme-option" data-color="#ffffff" data-theme="white"><span class="color-swatch" style="background-color: #ffffff;"></span>White</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const themePickerButton = document.querySelector('.theme-picker-button');
+        const themeDropdown = document.getElementById('theme-dropdown');
+        const themeOptions = themeDropdown.querySelectorAll('.theme-option');
+        const body = document.body;
+        const themeButtons = document.querySelectorAll('.theme-button');
+        const initialDarkEdgeColor = 'rgb(34, 34, 34)';
+        const emailTextSpan = document.querySelector('.email-contact-container .email-text');
+        const copyEmailButton = document.getElementById('copy-email-button');
+        const copyButtonIcon = copyEmailButton.querySelector('.button-icon img');
+
+
+        function darkenColor(hex, percent) {
+            let r = parseInt(hex.slice(1, 3), 16);
+            let g = parseInt(hex.slice(3, 5), 16);
+            let b = parseInt(hex.slice(5, 7), 16);
+
+            r = Math.max(0, r - Math.round(r * (percent / 100)));
+            g = Math.max(0, g - Math.round(g * (percent / 100)));
+            b = Math.max(0, b - Math.round(b * (percent / 100)));
+
+            const toHex = (c) => c.toString(16).padStart(2, '0');
+
+            return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+        }
+
+        function updateButtonStyles(borderColor, textColor, fromColor, toColor) {
+            const allThemedElements = [...themeButtons, themePickerButton];
+
+            allThemedElements.forEach(element => {
+                element.style.borderColor = borderColor;
+
+                const textSpan = element.querySelector('.button-text');
+                if (textSpan) {
+                    textSpan.style.color = textColor;
+                }
+
+                const iconImg = element.querySelector('.button-icon .logo');
+                if (iconImg) {
+                     if (body.classList.contains('white-theme')) {
+                        iconImg.style.filter = 'none';
+                    } else {
+                         iconImg.style.filter = 'invert(100%)';
+                    }
+                }
+
+
+                element.style.setProperty('--from-color', fromColor);
+                element.style.setProperty('--to-color', toColor);
+            });
+
+            themeDropdown.style.borderColor = borderColor;
+
+            const emailContactContainer = document.querySelector('.email-contact-container');
+            if (emailContactContainer) {
+                 emailContactContainer.style.borderColor = borderColor;
+                 if (body.classList.contains('white-theme')) {
+                     emailContactContainer.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
+                     emailTextSpan.style.color = '#000000';
+                     copyEmailButton.style.borderColor = '#000000';
+                     copyButtonIcon.style.filter = 'none';
+                     copyEmailButton.querySelector('.hover-gradient').style.background = 'linear-gradient(to right, #e2e8f0, #cbd5e1)';
+                 } else {
+                     emailContactContainer.style.backgroundColor = 'rgba(30, 41, 59, 0.7)';
+                     emailTextSpan.style.color = '#e2e8f0';
+                     copyEmailButton.style.borderColor = borderColor;
+                     copyButtonIcon.style.filter = 'invert(100%)';
+                     copyEmailButton.querySelector('.hover-gradient').style.background = `linear-gradient(to right, ${fromColor}, ${toColor})`;
+                 }
+            }
+        }
+
+        function applyTheme(selectedColor, themeType, fromColor, toColor) {
+             body.classList.remove('white-theme');
+             body.style.background = '';
+
+             if (themeType === 'white') {
+                 body.classList.add('white-theme');
+                 body.style.background = 'radial-gradient(at bottom, #ffffff 0%, #e0e0e0 50%, #cccccc 100%)';
+                 updateButtonStyles('#000000', '#000000', '#e2e8f0', '#cbd5e1');
+             } else {
+                 const darkerEdgeColor = initialDarkEdgeColor;
+                 const newGradient = `radial-gradient(at bottom, ${selectedColor} 0%, ${darkerEdgeColor} 100%)`;
+                 body.style.background = newGradient;
+                 updateButtonStyles(selectedColor, '#e2e8f0', fromColor, toColor);
+             }
+        }
+
+        const storedColor = localStorage.getItem('selectedThemeColor');
+        if (storedColor) {
+             const initialThemeOption = document.querySelector(`.theme-option[data-color="${storedColor}"]`);
+             if (initialThemeOption) {
+                 const initialColor = initialThemeOption.getAttribute('data-color');
+                 const initialFrom = initialThemeOption.getAttribute('data-from');
+                 const initialTo = initialThemeOption.getAttribute('data-to');
+                 const initialThemeType = initialThemeOption.getAttribute('data-theme');
+                 applyTheme(initialColor, initialThemeType, initialFrom, initialTo);
+             } else {
+                 const defaultThemeOption = document.querySelector('.theme-option[data-color="#2563eb"]');
+                 if (defaultThemeOption) {
+                     const defaultColor = defaultThemeOption.getAttribute('data-color');
+                     const defaultFrom = defaultThemeOption.getAttribute('data-from');
+                     const defaultTo = defaultThemeOption.getAttribute('data-to');
+                     const defaultThemeType = defaultThemeOption.getAttribute('data-theme');
+                     applyTheme(defaultColor, defaultThemeType, defaultFrom, defaultTo);
+                 }
+             }
+        } else {
+            const defaultThemeOption = document.querySelector('.theme-option[data-color="#2563eb"]');
+             if (defaultThemeOption) {
+                 const defaultColor = defaultThemeOption.getAttribute('data-color');
+                 const defaultFrom = defaultThemeOption.getAttribute('data-from');
+                 const defaultTo = defaultThemeOption.getAttribute('data-to');
+                 const defaultThemeType = defaultThemeOption.getAttribute('data-theme');
+                 applyTheme(defaultColor, defaultThemeType, defaultFrom, defaultTo);
+             }
+        }
+
+
+        themePickerButton.addEventListener('click', () => {
+            themeDropdown.classList.toggle('show');
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!themePickerButton.contains(event.target) && !themeDropdown.contains(event.target)) {
+                themeDropdown.classList.remove('show');
+            }
+        });
+
+        themeOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                const selectedColor = option.getAttribute('data-color');
+                const themeType = option.getAttribute('data-theme');
+                const fromColor = option.getAttribute('data-from');
+                const toColor = option.getAttribute('data-to');
+
+                applyTheme(selectedColor, themeType, fromColor, toColor);
+
+                localStorage.setItem('selectedThemeColor', selectedColor);
+
+                themeDropdown.classList.remove('show');
+            });
+        });
+
+        copyEmailButton.addEventListener('click', async () => {
+             const email = emailTextSpan.textContent;
+             try {
+                 await navigator.clipboard.writeText(email);
+                 console.log('Email copied to clipboard!');
+             } catch (err) {
+                 console.error('Failed to copy email: ', err);
+             }
+        });
+
+
+    </script>
+
+</body>
+</html>
